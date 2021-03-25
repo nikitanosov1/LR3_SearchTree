@@ -91,6 +91,27 @@ void inputTreeFromFile(node*& root)
 	fin.close();
 }
 
+void deleteRepeat(node*& root)
+{
+	if(root)
+	{
+		if (root->left)
+		{
+			if (root->value == root->left->value)
+			{
+				node* temp = root->left;
+				root->left = root->left->left;
+				delete temp;
+			}
+			deleteRepeat(root);
+		}
+		if (root->right)
+		{
+			deleteRepeat(root->right);
+		}
+	}
+}
+
 void printTree(node*& root)
 {
 	if (root)
@@ -105,6 +126,8 @@ int main()
 {
 	node* root = NULL;
 	inputTreeFromFile(root);
+	//printTree(root);
+	deleteRepeat(root);
 	printTree(root);
 	return 0;
 }
