@@ -36,26 +36,75 @@ struct node
 	node* right;
 };
 
-class Tree{
-public:
-	Tree(): val(0), left(), right(){}
-	
-
-	~Tree()
+void insert(node*& root, double x)
+{
+	if (!root)
 	{
-	
+		root = new node;
+		root->right = NULL;
+		root->left = NULL;
+		root->value = x;
 	}
-private:
-	double val;
-	node* left;
-	node* right;
-};
+	else
+	{
+		if (x > root->value)
+		{
+			if (root->right)
+			{
+				insert(root->right, x);
+			}
+			else
+			{
+				root->right = new node;
+				root->right->left = NULL;
+				root->right->right = NULL;
+				root->right->value = x;
+			}
+		}
+		else
+		{
+			if (root->left)
+			{
+				insert(root->left, x);
+			}
+			else
+			{
+				root->left = new node;
+				root->left->left = NULL;
+				root->left->right = NULL;
+				root->left->value = x;
+			}
+		}
+	}
+}
 
+void inputTreeFromFile(node*& root)
+{
+	double temp;
+	ifstream fin("input.txt");
+	if (!fin.is_open()) throw("I tried to find the file, but you decided not to create it ;(");
+	while(!fin.eof())
+	{
+		fin >> temp;
+		insert(root, temp);
+	}
+	fin.close();
+}
+
+void printTree(node*& root)
+{
+	if (root)
+	{
+		if (root->left) printTree(root->left);
+		if (root->right) printTree(root->right);
+		cout << root->value << " ";
+	}
+}
 
 int main()
 {
-
-
-
+	node* root = NULL;
+	inputTreeFromFile(root);
+	printTree(root);
 	return 0;
 }
