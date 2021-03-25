@@ -23,7 +23,6 @@
 «вправо», иначе (меньше или равно) – «влево»,
 - для сбалансированного дерева – сначала добавлять элемент «влево».
 */
-
 #include <iostream>
 #include <fstream>
 
@@ -78,6 +77,48 @@ void insert(node*& root, double x)
 	}
 }
 
+void insert2(node*& root, double x)
+{
+	if (!root)
+	{
+		root = new node;
+		root->right = NULL;
+		root->left = NULL;
+		root->value = x;
+	}
+	else
+	{
+		if (x > root->value)
+		{
+			if (root->right)
+			{
+				insert2(root->right, x);
+			}
+			else
+			{
+				root->right = new node;
+				root->right->left = NULL;
+				root->right->right = NULL;
+				root->right->value = x;
+			}
+		}
+		if (x < root->value)
+		{
+			if (root->left)
+			{
+				insert2(root->left, x);
+			}
+			else
+			{
+				root->left = new node;
+				root->left->left = NULL;
+				root->left->right = NULL;
+				root->left->value = x;
+			}
+		}
+	}
+}
+
 void inputTreeFromFile(node*& root)
 {
 	double temp;
@@ -91,34 +132,43 @@ void inputTreeFromFile(node*& root)
 	fin.close();
 }
 
-void deleteRepeat(node*& root)
-{
-	if(root)
-	{
-		if (root->left)
-		{
-			if (root->value == root->left->value)
-			{
-				node* temp = root->left;
-				root->left = root->left->left;
-				delete temp;
-			}
-			deleteRepeat(root);
-		}
-		if (root->right)
-		{
-			deleteRepeat(root->right);
-		}
-	}
-}
-
-void printTree(node*& root)
+void copy(node*& root, node*& newRoot)
 {
 	if (root)
 	{
-		if (root->left) printTree(root->left);
-		if (root->right) printTree(root->right);
-		cout << root->value << " ";
+		insert2(newRoot, root->value);
+		if (root->left) copy(root->left, newRoot);
+		if (root->right) copy(root->right, newRoot);
+	}
+
+}
+
+void deleteTree(node*& root)
+{
+	if (root)
+	{
+		if (root->left) deleteTree(root->left);
+		if (root->right) deleteTree(root->right);
+		delete root;
+	}
+}
+
+void deleteRepeat(node*& root)
+{
+	node* newTree = NULL;
+	node* temp = root;
+	copy(root, newTree);
+	root = newTree;
+	deleteTree(temp);
+}
+
+void saveTreeToFile(ofstream& fout, node*& root)
+{
+	if (root)
+	{
+		if (root->left) saveTreeToFile(fout, root->left);
+		if (root->right) saveTreeToFile(fout, root->right);
+		fout << root->value << " ";
 	}
 }
 
@@ -126,8 +176,10 @@ int main()
 {
 	node* root = NULL;
 	inputTreeFromFile(root);
-	//printTree(root);
 	deleteRepeat(root);
-	printTree(root);
+	ofstream fout("output.txt");
+	saveTreeToFile(fout, root);
+	deleteTree(root);
+	fout.close();
 	return 0;
 }
